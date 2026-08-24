@@ -1,58 +1,263 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🎓 BM3 Yelp — SMK Bina Mandiri Multimedia Teacher Review Platform
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 11" />
+  <img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.2+" />
+  <img src="https://img.shields.io/badge/TailwindCSS-3.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Alpine.js-3.x-8BC0D0?style=for-the-badge&logo=alpine.js&logoColor=white" alt="Alpine.js" />
+  <img src="https://img.shields.io/badge/PixiJS-8.x-E72264?style=for-the-badge&logo=pixijs&logoColor=white" alt="PixiJS" />
+  <img src="https://img.shields.io/badge/Tests-36%20Passing-brightgreen?style=for-the-badge&logo=githubactions&logoColor=white" alt="Tests" />
 </p>
 
-## About Laravel
+A modern, full-featured **Teacher Review & Rating Platform** tailored for **SMK Bina Mandiri Multimedia (BM3)**. Designed with a **Pixiv-inspired visual identity**, it provides students with a voice to rate and review their teachers across multiple academic dimensions, while giving school administrators robust tools to manage faculty profiles and moderate content safely.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📸 Overview & Key Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🎨 1. Pixiv-Inspired Design System & Dark Mode
+- **Pixiv Aesthetic**: Vibrant Pixiv Electric Blue (`#0096fa`), like coral pink (`#ff4060`), gold badges (`#ffaa00`), soft rounded cards (`16px`), and clean tag chips (`#Pemrograman Web`).
+- **Interactive Dark Mode**: Full dark theme support (`#121519` base, `#1b1f24` surfaces) with a zero-flash theme switch (☀️ / 🌙) persisted in `localStorage`.
+- **Canvas Particle Background**: Powered by **PixiJS**, dynamic floating particle orbs animate smoothly behind the hero section.
+- **Micro-Animations**: Animated rating counters, interactive star hover fill/bounce, and pulse effects on voting.
 
-## Learning Laravel
+### 👨‍🏫 2. Teacher Directory & Leaderboard
+- **Top Teacher Leaderboard**: Daily ranking podium badges (🥇 #1 Gold, 🥈 #2 Silver, 🥉 #3 Bronze) calculated dynamically from student reviews.
+- **Instant Search & Filter**: Search teachers by name, subject (e.g. *Pemrograman Web*, *Desain Grafis*, *Matematika*), and sort by rating or review count.
+- **Detailed Profiles**: Average ratings breakdown, teaching style overview, and verified student feedback.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### ⭐ 3. Multi-Dimension Review System
+- **5 Evaluation Categories**:
+  1. 🌟 **Overall Rating**
+  2. 📖 **Teaching Quality**
+  3. 💡 **Explanation Clarity**
+  4. ⚖️ **Grading Fairness**
+  5. 📝 **Assignment Workload**
+- **Integrity Controls**: Duplicate review prevention (one review per teacher per student), authorization policies (`ReviewPolicy`), and editable submissions.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 👍 4. Helpful Voting & Community Moderation
+- **AJAX Vote Toggling**: Students can upvote helpful reviews with instant UI updates and CSRF-protected backend validation (self-voting is prevented).
+- **Review Reporting**: Flag inappropriate content with pre-categorized reasons (*Spam*, *Harassment*, *Offensive Language*, *Personal Information*, *Fake Review*, or *Other*).
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### 🛡️ 5. Comprehensive Admin Dashboard
+- **Analytics Cards**: Total faculty count, registered students, published reviews, and pending reports.
+- **Teacher Management (CRUD)**: Create, edit, and delete teacher profiles with photo upload or automatic avatar initials.
+- **Report Moderation**: Review reported posts and safely resolve (hide) or dismiss flags.
+- **User Moderation**: View student accounts, track submitted reviews, and toggle account suspensions.
 
-## Agentic Development
+---
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## 🛠️ Tech Stack
+
+- **Backend**: [Laravel 11](https://laravel.com), PHP 8.2+
+- **Frontend**: [Blade Templates](https://laravel.com/docs/blade), [Tailwind CSS](https://tailwindcss.com), [Alpine.js](https://alpinejs.dev)
+- **Graphics / VFX**: [PixiJS 8](https://pixijs.com)
+- **Database**: SQLite (default, zero-configuration) or MySQL / PostgreSQL
+- **Asset Bundler**: [Vite](https://vitejs.dev)
+- **Testing**: [PHPUnit](https://phpunit.de) & Laravel Feature Testing Suite
+
+---
+
+## 🚀 Getting Started & Installation Tutorial
+
+Follow these step-by-step instructions to set up and run BM3 Yelp locally on your machine.
+
+### Prerequisites
+
+Ensure you have the following software installed:
+- **PHP** >= 8.2 with SQLite, PDO, cURL, and Mbstring extensions
+- **Composer** (PHP Package Manager)
+- **Node.js** >= 18.x & **NPM**
+- **Git**
+
+---
+
+### Step 1: Clone the Repository
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/Caly-sys/bm3-yelp.git
+cd bm3-yelp
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+---
 
-## Contributing
+### Step 2: Install Dependencies
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Install both PHP and JavaScript dependencies:
 
-## Code of Conduct
+```bash
+# Install PHP packages
+composer install
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Install NPM packages
+npm install
+```
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Step 3: Environment Setup
 
-## License
+Duplicate the example environment configuration file and generate your application encryption key:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+#### On Windows (PowerShell / Command Prompt):
+```powershell
+copy .env.example .env
+php artisan key:generate
+```
+
+#### On Linux / macOS:
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+---
+
+### Step 4: Database Setup & Seeding
+
+The application uses **SQLite** by default, requiring no database server installation.
+
+Run the migrations and populate the database with the pre-configured demo seeder:
+
+```bash
+# Run migrations and seed with realistic teachers, students, reviews, and votes
+php artisan migrate:fresh --seed
+```
+
+---
+
+### Step 5: Link Storage for Uploads
+
+Create a symbolic link to make uploaded teacher profile photos publicly accessible:
+
+```bash
+php artisan storage:link
+```
+
+---
+
+### Step 6: Compile Assets
+
+Build the frontend assets for production, or run the development server for hot-reloading:
+
+```bash
+# Build production bundle
+npm run build
+
+# OR start live development server (optional)
+npm run dev
+```
+
+---
+
+### Step 7: Launch the Application
+
+Start the local Laravel development server:
+
+```bash
+php artisan serve
+```
+
+🎉 Open your browser and navigate to: **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
+
+---
+
+## 🔑 Demo & Admin Credentials
+
+The database seeder automatically populates sample accounts for immediate testing:
+
+| Role | Username | Email | Password | Access Level |
+| :--- | :--- | :--- | :--- | :--- |
+| **Admin** | `admin` | `admin@bm3.sch.id` | `password` | Full Admin Dashboard (`/admin`), Teacher CRUD, Report Resolution, User Suspension |
+| **Demo Student** | `student_demo` | `student@bm3.sch.id` | `password` | Write reviews, edit own reviews, vote helpful, report reviews, profile editing |
+
+> 💡 **Note**: The seeder also creates **30 other student accounts** (all with password `password`) along with realistic multi-teacher review threads and helpful vote distributions.
+
+---
+
+## 🧪 Running Automated Tests
+
+BM3 Yelp includes a comprehensive automated test suite covering all authentication flows, student journeys, rating constraints, vote integrity, and admin moderation rules.
+
+Run the test suite with:
+
+```bash
+php artisan test
+```
+
+### Test Coverage Highlights:
+- ✅ `test_guest_can_view_home_page`
+- ✅ `test_guest_can_view_teacher_directory_and_filter`
+- ✅ `test_guest_can_view_teacher_profile_with_ratings`
+- ✅ `test_student_can_create_a_review`
+- ✅ `test_student_cannot_submit_duplicate_review_for_same_teacher`
+- ✅ `test_student_can_edit_own_review`
+- ✅ `test_student_cannot_edit_another_users_review`
+- ✅ `test_student_can_toggle_helpful_vote_on_review`
+- ✅ `test_user_cannot_vote_on_own_review`
+- ✅ `test_student_can_report_review`
+- ✅ `test_student_cannot_access_admin_dashboard`
+- ✅ `test_admin_can_access_dashboard_and_manage_teachers`
+- ✅ `test_admin_can_resolve_reports`
+- ✅ All Laravel Breeze authentication and profile management tests
+
+**Total:** 36 passing tests (94 assertions).
+
+---
+
+## 📁 Project Architecture
+
+```
+bm3-yelp/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Admin/              # Admin CRUD, Report & User moderation
+│   │   │   ├── HomeController.php  # Landing page & top ranked teachers
+│   │   │   ├── TeacherController.php# Teacher directory & profiles
+│   │   │   ├── ReviewController.php # 5-star review submissions & edits
+│   │   │   ├── ReviewVoteController.php # AJAX helpful vote toggling
+│   │   │   └── ReportController.php # Content flagging
+│   │   └── Middleware/
+│   │       └── EnsureIsAdmin.php   # Admin route guard
+│   ├── Models/                     # User, Teacher, Review, ReviewVote, Report
+│   └── Policies/
+│       └── ReviewPolicy.php        # Granular authorization for review management
+├── database/
+│   ├── factories/                  # Seed factories for users, teachers, reviews
+│   ├── migrations/                 # Database schema definitions
+│   └── seeders/DatabaseSeeder.php  # Sample data generator
+├── resources/
+│   ├── css/app.css                 # Custom Tailwind & Pixiv theme definitions
+│   ├── js/
+│   │   ├── app.js                  # Main bundle & Alpine.js initialization
+│   │   ├── pixi-background.js      # PixiJS floating particle background
+│   │   └── rating-input.js         # Interactive star rating component logic
+│   └── views/
+│       ├── admin/                  # Admin dashboard & management views
+│       ├── components/             # Reusable UI components (cards, stars, modals)
+│       ├── teachers/               # Directory & profile pages
+│       └── home.blade.php          # Landing page
+├── routes/
+│   ├── web.php                     # Application route definitions
+│   └── auth.php                    # Authentication routes
+└── tests/
+    └── Feature/
+        └── Bm3PlatformTest.php     # Comprehensive feature test suite
+```
+
+---
+
+## 🤝 Contributing
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is open-source and available under the [MIT License](LICENSE).
