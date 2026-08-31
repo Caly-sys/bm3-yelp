@@ -6,17 +6,39 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTeacherRequest;
 use App\Http\Requests\UpdateTeacherRequest;
 use App\Models\Teacher;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class TeacherController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $teachers = Teacher::withCount('reviews')
-            ->orderBy('name')
-            ->paginate(20);
+        $query = Teacher::withCount('reviews')->withAvg('reviews', 'overall_rating');
 
-        return view('admin.teachers.index', compact('teachers'));
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('subject', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('subject')) {
+            $query->where('subject', $request->input('subject'));
+        }
+
+        $sort = $request->input('sort', 'name_asc');
+        match ($sort) {
+            'name_desc' => $query->orderByDesc('name'),
+            'reviews_desc' => $query->orderByDesc('reviews_count'),
+            'rating_desc' => $query->orderByDesc('reviews_avg_overall_rating'),
+            default => $query->orderBy('name'),
+        };
+
+        $teachers = $query->paginate(15)->withQueryString();
+        $subjects = Teacher::distinct()->pluck('subject')->filter()->values();
+
+        return view('admin.teachers.index', compact('teachers', 'subjects'));
     }
 
     public function create()
