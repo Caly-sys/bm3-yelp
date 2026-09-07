@@ -69,6 +69,14 @@ class Review extends Model
     }
 
     /**
+     * Comments/responses on this review (e.g. teacher responses).
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(ReviewComment::class);
+    }
+
+    /**
      * Get the number of helpful votes.
      */
     public function helpfulCount(): int

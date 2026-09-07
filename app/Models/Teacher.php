@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\TeacherFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Teacher extends Model
@@ -17,7 +18,16 @@ class Teacher extends Model
         'subject',
         'description',
         'photo',
+        'user_id',
     ];
+
+    /**
+     * The user account linked to this teacher.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * Reviews for this teacher.

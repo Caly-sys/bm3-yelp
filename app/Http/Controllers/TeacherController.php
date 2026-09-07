@@ -74,7 +74,7 @@ class TeacherController extends Controller
 
         $reviews = $teacher->reviews()
             ->where('status', 'published')
-            ->with(['user', 'votes'])
+            ->with(['user', 'votes', 'comments.user'])
             ->withCount('votes')
             ->orderByDesc('created_at')
             ->paginate(10);

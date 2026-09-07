@@ -3,8 +3,10 @@
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReviewCommentController;
 use App\Http\Controllers\ReviewVoteController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
@@ -37,11 +39,17 @@ Route::middleware('auth')->group(function () {
     Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 
+    // Review comments (teacher responses)
+    Route::post('/reviews/{review}/comments', [ReviewCommentController::class, 'store'])->name('reviews.comments.store');
+
     // Helpful votes
     Route::post('/reviews/{review}/vote', [ReviewVoteController::class, 'toggle'])->name('reviews.vote');
 
     // Reports
     Route::post('/reviews/{review}/report', [ReportController::class, 'store'])->name('reviews.report');
+
+    // Notifications
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
 
     // User profile
     Route::get('/profile', [UserProfileController::class, 'show'])->name('profile.show');

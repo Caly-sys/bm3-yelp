@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Helpers\ProfanityFilter;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateReviewRequest extends FormRequest
@@ -22,4 +23,15 @@ class UpdateReviewRequest extends FormRequest
             'comment' => 'required|string|min:10|max:2000',
         ];
     }
+
+    /**
+     * Filter profanity from the comment after validation passes.
+     */
+    public function passedValidation(): void
+    {
+        $this->merge([
+            'comment' => ProfanityFilter::filter($this->comment),
+        ]);
+    }
 }
+

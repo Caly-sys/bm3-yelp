@@ -41,38 +41,86 @@ class DatabaseSeeder extends Seeder
         // Create 15 teachers with Indonesian names and BM3 subjects
         $teachers = Teacher::factory(15)->create();
 
-        // Also create some specific well-known teachers
-        $specificTeachers = collect([
-            Teacher::factory()->create([
-                'name' => 'Pak Ahmad Hidayat',
-                'subject' => 'Pemrograman Web',
-                'description' => 'Guru senior pemrograman web dengan pengalaman 10 tahun di industri IT. Mengajarkan HTML, CSS, JavaScript, dan PHP/Laravel.',
-            ]),
-            Teacher::factory()->create([
-                'name' => 'Bu Siti Rahayu',
-                'subject' => 'Desain Grafis',
-                'description' => 'Spesialis desain grafis dan multimedia. Menguasai Adobe Creative Suite dan berbagai tools desain modern.',
-            ]),
-            Teacher::factory()->create([
-                'name' => 'Pak Budi Santoso',
-                'subject' => 'Matematika',
-                'description' => 'Guru matematika yang dikenal dengan metode pengajaran interaktif dan pendekatan problem-solving.',
-            ]),
-            Teacher::factory()->create([
-                'name' => 'Bu Dewi Lestari',
-                'subject' => 'Bahasa Inggris',
-                'description' => 'Berpengalaman mengajar Bahasa Inggris dengan fokus pada conversation dan business English.',
-            ]),
-            Teacher::factory()->create([
-                'name' => 'Pak Riko Pratama',
-                'subject' => 'Jaringan Komputer',
-                'description' => 'Certified network engineer. Mengajarkan jaringan komputer dari dasar hingga konfigurasi enterprise.',
-            ]),
-        ]);
+        // Create specific well-known teachers with linked user accounts
+        $specificTeachersData = [
+            [
+                'teacher' => [
+                    'name' => 'Pak Ahmad Hidayat',
+                    'subject' => 'Pemrograman Web',
+                    'description' => 'Guru senior pemrograman web dengan pengalaman 10 tahun di industri IT. Mengajarkan HTML, CSS, JavaScript, dan PHP/Laravel.',
+                ],
+                'user' => [
+                    'username' => 'pak_ahmad',
+                    'name' => 'Pak Ahmad Hidayat',
+                    'email' => 'pak_ahmad@bm3.sch.id',
+                ],
+            ],
+            [
+                'teacher' => [
+                    'name' => 'Bu Siti Rahayu',
+                    'subject' => 'Desain Grafis',
+                    'description' => 'Spesialis desain grafis dan multimedia. Menguasai Adobe Creative Suite dan berbagai tools desain modern.',
+                ],
+                'user' => [
+                    'username' => 'bu_siti',
+                    'name' => 'Bu Siti Rahayu',
+                    'email' => 'bu_siti@bm3.sch.id',
+                ],
+            ],
+            [
+                'teacher' => [
+                    'name' => 'Pak Budi Santoso',
+                    'subject' => 'Matematika',
+                    'description' => 'Guru matematika yang dikenal dengan metode pengajaran interaktif dan pendekatan problem-solving.',
+                ],
+                'user' => [
+                    'username' => 'pak_budi',
+                    'name' => 'Pak Budi Santoso',
+                    'email' => 'pak_budi@bm3.sch.id',
+                ],
+            ],
+            [
+                'teacher' => [
+                    'name' => 'Bu Dewi Lestari',
+                    'subject' => 'Bahasa Inggris',
+                    'description' => 'Berpengalaman mengajar Bahasa Inggris dengan fokus pada conversation dan business English.',
+                ],
+                'user' => [
+                    'username' => 'bu_dewi',
+                    'name' => 'Bu Dewi Lestari',
+                    'email' => 'bu_dewi@bm3.sch.id',
+                ],
+            ],
+            [
+                'teacher' => [
+                    'name' => 'Pak Riko Pratama',
+                    'subject' => 'Jaringan Komputer',
+                    'description' => 'Certified network engineer. Mengajarkan jaringan komputer dari dasar hingga konfigurasi enterprise.',
+                ],
+                'user' => [
+                    'username' => 'pak_riko',
+                    'name' => 'Pak Riko Pratama',
+                    'email' => 'pak_riko@bm3.sch.id',
+                ],
+            ],
+        ];
+
+        $specificTeachers = collect();
+        foreach ($specificTeachersData as $data) {
+            // Create the teacher's user account
+            $teacherUser = User::factory()->teacher()->create($data['user']);
+
+            // Create the teacher profile linked to the user account
+            $teacher = Teacher::factory()->create(array_merge($data['teacher'], [
+                'user_id' => $teacherUser->id,
+            ]));
+
+            $specificTeachers->push($teacher);
+        }
 
         $allTeachers = $teachers->concat($specificTeachers);
 
-        // Create 80 reviews spread across teachers
+        // Create reviews spread across teachers
         // Ensure unique user-teacher pairs
         $usedPairs = [];
 
@@ -108,6 +156,6 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        $this->command->info('Seeded: 1 admin, 31 students, ' . $allTeachers->count() . ' teachers, ' . Review::count() . ' reviews, ' . ReviewVote::count() . ' votes');
+        $this->command->info('Seeded: 1 admin, 31 students, 5 teacher accounts, ' . $allTeachers->count() . ' teachers, ' . Review::count() . ' reviews, ' . ReviewVote::count() . ' votes');
     }
 }

@@ -43,10 +43,9 @@
                     {{-- Write Review Button --}}
                     @auth
                         @if($hasReviewed)
-                            <div class="card card-info">
-                                <p>✏️ You've already reviewed this teacher.</p>
-                                <a href="{{ route('reviews.edit', $userReview) }}" class="btn btn-primary btn-block">Edit Your Review</a>
-                            </div>
+                            <button class="btn btn-secondary btn-block btn-lg" disabled title="You have already submitted a review for this teacher">
+                                ✍️ Write a Review (Already Reviewed)
+                            </button>
                         @else
                             <a href="{{ route('reviews.create', $teacher) }}" class="btn btn-primary btn-block btn-lg">
                                 ✍️ Write a Review

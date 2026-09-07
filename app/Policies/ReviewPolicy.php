@@ -18,10 +18,10 @@ class ReviewPolicy
 
     /**
      * Determine if the user can delete the review.
-     * Only the review author can delete their review.
+     * Only admins can moderate/delete reviews.
      */
     public function delete(User $user, Review $review): bool
     {
-        return $user->id === $review->user_id;
+        return $user->isAdmin();
     }
 }

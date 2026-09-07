@@ -203,7 +203,7 @@
                                         <span class="text-muted text-xs">• {{ $review->created_at->diffForHumans() }}</span>
                                     </div>
                                     <p class="admin-activity-content">
-                                        "{{ Str::limit($review->comment, 85) }}"
+                                        "{{ Str::limit(\App\Helpers\ProfanityFilter::filter($review->comment), 85) }}"
                                     </p>
                                 </div>
                                 <div class="admin-item-actions">

@@ -83,8 +83,8 @@
                                             <span class="font-bold text-sm">{{ $review->overall_rating }}/5</span>
                                         </div>
                                     </td>
-                                    <td class="admin-comment-cell" title="{{ $review->comment }}">
-                                        "{{ Str::limit($review->comment, 65) }}"
+                                    <td class="admin-comment-cell" title="{{ \App\Helpers\ProfanityFilter::filter($review->comment) }}">
+                                        "{{ Str::limit(\App\Helpers\ProfanityFilter::filter($review->comment), 65) }}"
                                     </td>
                                     <td>
                                         <span class="text-xs font-bold text-muted">👍 {{ $review->votes_count }}</span>

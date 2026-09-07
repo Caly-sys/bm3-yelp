@@ -6,6 +6,7 @@ use App\Http\Requests\StoreReviewRequest;
 use App\Http\Requests\UpdateReviewRequest;
 use App\Models\Review;
 use App\Models\Teacher;
+use App\Notifications\NewReviewNotification;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ReviewController extends Controller
@@ -24,7 +25,7 @@ class ReviewController extends Controller
 
         if ($existingReview) {
             return redirect()->route('teachers.show', $teacher)
-                ->with('info', 'You have already reviewed this teacher. You can edit your existing review.');
+                ->with('info', 'You have already reviewed this teacher.');
         }
 
         return view('reviews.create', compact('teacher'));
@@ -45,11 +46,16 @@ class ReviewController extends Controller
                 ->with('error', 'You have already reviewed this teacher.');
         }
 
-        Review::create([
+        $review = Review::create([
             'teacher_id' => $teacher->id,
             'user_id' => auth()->id(),
             ...$request->validated(),
         ]);
+
+        // Send notification to the teacher's linked user account
+        if ($teacher->user_id && $teacher->user) {
+            $teacher->user->notify(new NewReviewNotification($review, auth()->user()));
+        }
 
         return redirect()->route('teachers.show', $teacher)
             ->with('success', 'Your review has been submitted successfully!');

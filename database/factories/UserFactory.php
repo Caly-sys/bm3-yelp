@@ -56,4 +56,14 @@ class UserFactory extends Factory
             'role' => 'admin',
         ]);
     }
+
+    /**
+     * Indicate that the user is a teacher.
+     */
+    public function teacher(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'teacher',
+        ]);
+    }
 }

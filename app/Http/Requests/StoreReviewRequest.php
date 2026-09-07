@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Helpers\ProfanityFilter;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreReviewRequest extends FormRequest
@@ -33,5 +34,15 @@ class StoreReviewRequest extends FormRequest
             'comment.min' => 'Your comment must be at least 10 characters long.',
             'comment.max' => 'Your comment cannot exceed 2000 characters.',
         ];
+    }
+
+    /**
+     * Filter profanity from the comment after validation passes.
+     */
+    public function passedValidation(): void
+    {
+        $this->merge([
+            'comment' => ProfanityFilter::filter($this->comment),
+        ]);
     }
 }
