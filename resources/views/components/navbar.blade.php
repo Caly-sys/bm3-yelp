@@ -13,6 +13,13 @@
 
             @auth
                 <a href="{{ route('profile.show') }}" class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}">My Profile</a>
+
+                @if(auth()->user()->isTeacher() || auth()->user()->isAdmin())
+                    <a href="{{ route('invitations.index') }}" class="nav-link {{ request()->routeIs('invitations.*') ? 'active' : '' }}">
+                        📋 Manage Students
+                    </a>
+                @endif
+
                 @if(auth()->user()->isAdmin())
                     <a href="{{ route('admin.dashboard') }}" class="nav-link nav-admin {{ request()->routeIs('admin.*') ? 'active' : '' }}">Admin</a>
                 @endif
@@ -33,30 +40,41 @@
                     <div class="notification-dropdown" id="notificationDropdown">
                         <div class="notification-dropdown-header">
                             <span class="notification-dropdown-title">Notifications</span>
-                            @if($unreadCount > 0)
-                                <form method="POST" action="{{ route('notifications.markAllRead') }}" class="inline-form">
-                                    @csrf
-                                    <button type="submit" class="notification-mark-read">Mark all as read</button>
-                                </form>
-                            @endif
+                            <div class="notification-header-actions">
+                                @if($unreadCount > 0)
+                                    <form method="POST" action="{{ route('notifications.markAllRead') }}" class="inline-form">
+                                        @csrf
+                                        <button type="submit" class="notification-mark-read">Mark all as read</button>
+                                    </form>
+                                @endif
+                            </div>
                         </div>
                         <div class="notification-dropdown-list">
                             @if($recentNotifications->isEmpty())
                                 <div class="notification-empty">No notifications yet</div>
                             @else
                                 @foreach($recentNotifications as $notification)
-                                    <a href="{{ $notification->data['link'] ?? '#' }}" class="notification-item {{ $notification->read_at ? '' : 'unread' }}">
-                                        <span class="notification-message">{{ $notification->data['message'] ?? 'New notification' }}</span>
-                                        <span class="notification-time">{{ $notification->created_at->diffForHumans() }}</span>
-                                    </a>
+                                    <form method="POST" action="{{ route('notifications.markAsRead', $notification->id) }}" class="notification-item-form">
+                                        @csrf
+                                        <button type="submit" class="notification-item {{ $notification->read_at ? '' : 'unread' }}">
+                                            <span class="notification-message">{{ $notification->data['message'] ?? 'New notification' }}</span>
+                                            <span class="notification-time">{{ $notification->created_at->diffForHumans() }}</span>
+                                        </button>
+                                    </form>
                                 @endforeach
                             @endif
                         </div>
+                        @if($recentNotifications->isNotEmpty())
+                            <div class="notification-dropdown-footer">
+                                <a href="{{ route('notifications.index') }}" class="notification-view-all">View all notifications</a>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
                 <div class="nav-user">
                     <span class="nav-username">{{ '@' . auth()->user()->username }}</span>
+                    <span class="nav-role-badge nav-role-{{ auth()->user()->role }}">{{ ucfirst(auth()->user()->role) }}</span>
                     <form method="POST" action="{{ route('logout') }}" class="nav-logout-form">
                         @csrf
                         <button type="submit" class="btn btn-ghost btn-sm">Logout</button>

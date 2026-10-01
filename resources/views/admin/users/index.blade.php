@@ -1,5 +1,9 @@
 <x-layout title="Manage Users">
-    <x-admin-nav title="User Management" subtitle="View all registered student and admin accounts, manage roles and access">
+    <x-admin-nav title="User Management" subtitle="View all registered accounts, manage roles and access">
+        <x-slot:actions>
+            <a href="{{ route('admin.users.create') }}" class="btn btn-primary btn-sm">➕ Create User</a>
+            <a href="{{ route('invitations.index') }}" class="btn btn-ghost btn-sm">📋 Invitations</a>
+        </x-slot:actions>
     </x-admin-nav>
 
     <section class="section admin-section">
@@ -15,6 +19,7 @@
                     <select name="role" class="form-select" aria-label="Filter by role">
                         <option value="">All Roles</option>
                         <option value="student" {{ request('role') === 'student' ? 'selected' : '' }}>Students</option>
+                        <option value="teacher" {{ request('role') === 'teacher' ? 'selected' : '' }}>Teachers</option>
                         <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admins</option>
                     </select>
 
@@ -57,7 +62,7 @@
                                 <tr class="{{ $user->is_suspended ? 'row-suspended' : '' }}">
                                     <td>
                                         <div class="admin-cell-user">
-                                            <div class="admin-avatar-sm" style="background-color: {{ $user->isAdmin() ? '#8B5CF6' : '#0096FA' }}">
+                                            <div class="admin-avatar-sm" style="background-color: {{ $user->isAdmin() ? '#8B5CF6' : ($user->isTeacher() ? '#10B981' : '#0096FA') }}">
                                                 @if($user->avatar)
                                                     <img src="{{ Storage::url($user->avatar) }}" alt="{{ $user->username }}">
                                                 @else
@@ -76,8 +81,10 @@
                                     <td>
                                         @if($user->isAdmin())
                                             <span class="badge badge-admin">⚡ Admin</span>
+                                        @elseif($user->isTeacher())
+                                            <span class="badge badge-success">🎓 Teacher</span>
                                         @else
-                                            <span class="badge">Student</span>
+                                            <span class="badge">📚 Student</span>
                                         @endif
                                     </td>
                                     <td>
