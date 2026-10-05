@@ -20,6 +20,31 @@ class NotificationController extends Controller
     }
 
     /**
+     * Fetch notifications for real-time polling.
+     */
+    public function fetch(Request $request)
+    {
+        $user = $request->user();
+        $unreadCount = $user->unreadNotifications()->count();
+        $recentNotifications = $user->notifications()->latest()->take(10)->get()->map(function($notif) {
+            return [
+                'id' => $notif->id,
+                'message' => $notif->data['message'] ?? 'New notification',
+                'time' => $notif->created_at->diffForHumans(),
+                'is_read' => $notif->read_at !== null,
+                'link' => $notif->data['link'] ?? null,
+                'mark_as_read_url' => route('notifications.markAsRead', $notif->id),
+                'delete_url' => route('notifications.destroy', $notif->id),
+            ];
+        });
+
+        return response()->json([
+            'unreadCount' => $unreadCount,
+            'notifications' => $recentNotifications
+        ]);
+    }
+
+    /**
      * Mark a single notification as read and redirect to its link.
      */
     public function markAsRead(Request $request, string $id)
@@ -30,6 +55,10 @@ class NotificationController extends Controller
             ->firstOrFail();
 
         $notification->markAsRead();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
 
         $link = $notification->data['link'] ?? route('home');
 
@@ -42,6 +71,10 @@ class NotificationController extends Controller
     public function markAllRead(Request $request)
     {
         $request->user()->unreadNotifications->markAsRead();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
 
         return back()->with('success', 'All notifications marked as read.');
     }
@@ -58,6 +91,10 @@ class NotificationController extends Controller
 
         $notification->delete();
 
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+
         return back()->with('success', 'Notification deleted.');
     }
 
@@ -67,6 +104,10 @@ class NotificationController extends Controller
     public function destroyAll(Request $request)
     {
         $request->user()->notifications()->delete();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
 
         return back()->with('success', 'All notifications cleared.');
     }

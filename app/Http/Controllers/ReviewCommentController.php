@@ -41,6 +41,8 @@ class ReviewCommentController extends Controller
         if ($reviewAuthor && $reviewAuthor->id !== $user->id) {
             $reviewAuthor->notify(new ReviewCommentNotification($comment));
         }
+        
+        event(new \App\Events\ReviewUpdated($teacher->id));
 
         return redirect()->route('teachers.show', $teacher)
             ->with('success', 'Your response has been posted successfully!');

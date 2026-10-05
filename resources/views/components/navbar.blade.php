@@ -119,4 +119,156 @@
             dropdown.classList.remove('open');
         }
     });
+
+    // Real-time notifications polling
+    @auth
+    (function() {
+        let lastUnreadCount = {{ $unreadCount }};
+        let pollInterval = 1000; // Poll every 1 second (instant)
+        let pollTimer = null;
+        let isFetching = false;
+
+        function fetchNotifications() {
+            if (isFetching) return;
+            isFetching = true;
+
+            fetch('{{ route("notifications.fetch") }}', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    // Update badge
+                    let bell = document.getElementById('notificationBell');
+                    if (bell) {
+                        let badge = document.getElementById('notificationBadge');
+                        if (data.unreadCount > 0) {
+                            let displayCount = data.unreadCount > 99 ? '99+' : data.unreadCount;
+                            if (!badge) {
+                                badge = document.createElement('span');
+                                badge.className = 'notification-badge';
+                                badge.id = 'notificationBadge';
+                                bell.appendChild(badge);
+                            }
+                            badge.textContent = displayCount;
+
+                            // Pulse animation when new notifications arrive
+                            if (data.unreadCount > lastUnreadCount) {
+                                bell.classList.add('notification-bell-pulse');
+                                setTimeout(() => bell.classList.remove('notification-bell-pulse'), 1000);
+                            }
+                        } else if (badge) {
+                            badge.remove();
+                        }
+                    }
+
+                    lastUnreadCount = data.unreadCount;
+                    
+                    // Update dropdown list
+                    let list = document.querySelector('.notification-dropdown-list');
+                    if (list) {
+                        if (data.notifications.length === 0) {
+                            list.innerHTML = '<div class="notification-empty">No notifications yet</div>';
+                        } else {
+                            let csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+                            let csrf = csrfTokenMeta ? csrfTokenMeta.content : '';
+                            list.innerHTML = '';
+                            data.notifications.forEach(notif => {
+                                let form = document.createElement('form');
+                                form.method = 'POST';
+                                form.action = notif.mark_as_read_url;
+                                form.className = 'notification-item-form';
+                                
+                                let csrfInput = document.createElement('input');
+                                csrfInput.type = 'hidden';
+                                csrfInput.name = '_token';
+                                csrfInput.value = csrf;
+                                
+                                let button = document.createElement('button');
+                                button.type = 'submit';
+                                button.className = 'notification-item ' + (notif.is_read ? '' : 'unread');
+                                
+                                let msg = document.createElement('span');
+                                msg.className = 'notification-message';
+                                msg.textContent = notif.message;
+                                
+                                let time = document.createElement('span');
+                                time.className = 'notification-time';
+                                time.textContent = notif.time;
+                                
+                                button.appendChild(msg);
+                                button.appendChild(time);
+                                form.appendChild(csrfInput);
+                                form.appendChild(button);
+                                
+                                list.appendChild(form);
+                            });
+                        }
+                    }
+                    
+                    // Update header actions (Mark all as read)
+                    let headerActions = document.querySelector('.notification-header-actions');
+                    if (headerActions) {
+                        if (data.unreadCount > 0) {
+                            if (headerActions.innerHTML.trim() === '') {
+                                let csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+                                let csrf = csrfTokenMeta ? csrfTokenMeta.content : '';
+                                headerActions.innerHTML = `
+                                    <form method="POST" action="{{ route('notifications.markAllRead') }}" class="inline-form">
+                                        <input type="hidden" name="_token" value="${csrf}">
+                                        <button type="submit" class="notification-mark-read">Mark all as read</button>
+                                    </form>
+                                `;
+                            }
+                        } else {
+                            headerActions.innerHTML = '';
+                        }
+                    }
+                    
+                    // Update footer (View all)
+                    let footer = document.querySelector('.notification-dropdown-footer');
+                    let dropdown = document.getElementById('notificationDropdown');
+                    if (data.notifications.length > 0) {
+                        if (!footer && dropdown) {
+                            footer = document.createElement('div');
+                            footer.className = 'notification-dropdown-footer';
+                            footer.innerHTML = '<a href="{{ route("notifications.index") }}" class="notification-view-all">View all notifications</a>';
+                            dropdown.appendChild(footer);
+                        }
+                    } else if (footer) {
+                        footer.remove();
+                    }
+                })
+                .catch(error => console.error('Error fetching notifications:', error))
+                .finally(() => { isFetching = false; });
+        }
+
+        // Fetch immediately on page load
+        fetchNotifications();
+
+        // Start WebSockets listener
+        if (window.Echo) {
+            window.Echo.private('App.Models.User.{{ auth()->id() }}')
+                .notification((notification) => {
+                    fetchNotifications();
+                });
+        } else {
+            console.warn('Laravel Echo is not defined. Falling back to polling.');
+            setInterval(fetchNotifications, 5000);
+        }
+
+        // Fetch immediately when visible (covers alt-tab or returning to tab)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                fetchNotifications();
+            }
+        });
+        
+        window.addEventListener('focus', function() {
+            fetchNotifications();
+        });
+    })();
+    @endauth
 </script>

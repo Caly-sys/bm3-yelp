@@ -2650,6 +2650,20 @@ button, input, select, textarea {
     background: var(--bg-surface-alt);
 }
 
+.notification-bell-pulse {
+    animation: bellRing 0.8s ease-in-out;
+}
+
+@keyframes bellRing {
+    0% { transform: rotate(0); }
+    15% { transform: rotate(14deg); }
+    30% { transform: rotate(-12deg); }
+    45% { transform: rotate(10deg); }
+    60% { transform: rotate(-8deg); }
+    75% { transform: rotate(4deg); }
+    100% { transform: rotate(0); }
+}
+
 .notification-badge {
     position: absolute;
     top: 0;
@@ -3005,6 +3019,7 @@ button.notification-item {
     padding: 1rem 1.25rem;
     gap: 1rem;
     flex-wrap: wrap;
+    transition: background 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
 }
 
 .notification-card-unread {
@@ -3036,6 +3051,33 @@ button.notification-item {
     gap: 0.35rem;
     align-items: center;
     flex-shrink: 0;
+}
+
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeSlideOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 100px;
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+        max-height: 0;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+    }
 }
 
 /* ========================================

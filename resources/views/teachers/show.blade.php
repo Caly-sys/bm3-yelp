@@ -22,8 +22,11 @@
                     @endif
                     <div class="profile-rating-summary">
                         <x-rating-stars :rating="$averages['overall']" size="lg" />
-                        <span class="rating-big">{{ number_format($averages['overall'], 1) }} / 5</span>
-                        <span class="rating-count">{{ $reviewCount }} {{ Str::plural('review', $reviewCount) }}</span>
+                        <span class="rating-big" id="overallRatingText">{{ number_format($averages['overall'], 1) }} / 5</span>
+                        <span class="rating-count" id="reviewCountText">{{ $reviewCount }} {{ Str::plural('review', $reviewCount) }}</span>
+                        <span class="rating-points" id="pointsText" style="margin-left: 1rem; padding: 0.2rem 0.6rem; background: var(--bg-surface-alt); border-radius: 1rem; font-weight: bold; font-size: 0.9rem;">
+                            🎯 Points: {{ $teacher->points }}/100
+                        </span>
                     </div>
                 </div>
             </div>
@@ -59,26 +62,67 @@
                 </div>
 
                 {{-- Right: Reviews --}}
-                <div class="profile-reviews">
-                    <h2 class="section-title">Reviews ({{ $reviewCount }})</h2>
-
-                    @if($reviews->isEmpty())
-                        <div class="empty-state">
-                            <span class="empty-icon">📝</span>
-                            <h3>No reviews yet</h3>
-                            <p>Be the first to review this teacher!</p>
-                        </div>
-                    @else
-                        @foreach($reviews as $review)
-                            <x-review-card :review="$review" />
-                        @endforeach
-
-                        <div class="pagination-wrapper">
-                            {{ $reviews->links() }}
-                        </div>
-                    @endif
+                <div class="profile-reviews" id="reviewsContainer">
+                    @include('teachers._reviews')
                 </div>
             </div>
         </div>
     </section>
+
+    <script>
+        (function() {
+            let isFetching = false;
+
+            function fetchUpdates() {
+                // If there's pagination in the URL, don't poll to avoid jumping back to page 1
+                // or we could poll the current URL including query string.
+                if (isFetching || window.location.search.includes('page=')) return;
+                isFetching = true;
+
+                fetch(window.location.href, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Update reviews HTML
+                    const container = document.getElementById('reviewsContainer');
+                    if (container && data.html) {
+                        // Check if html changed before replacing (prevents flashing)
+                        if (container.innerHTML.trim() !== data.html.trim()) {
+                            container.innerHTML = data.html;
+                        }
+                    }
+
+                    // Update stats
+                    const overallRatingEl = document.getElementById('overallRatingText');
+                    if (overallRatingEl && data.overall_rating !== undefined) {
+                        overallRatingEl.textContent = data.overall_rating + ' / 5';
+                    }
+
+                    const reviewCountEl = document.getElementById('reviewCountText');
+                    if (reviewCountEl && data.reviewCount !== undefined) {
+                        reviewCountEl.textContent = data.reviewCount + ' ' + (data.reviewCount === 1 ? 'review' : 'reviews');
+                    }
+
+                    const pointsEl = document.getElementById('pointsText');
+                    if (pointsEl && data.points !== undefined) {
+                        pointsEl.textContent = '🎯 Points: ' + data.points + '/100';
+                    }
+                })
+                .catch(err => console.error('Error polling teacher updates:', err))
+                .finally(() => { isFetching = false; });
+            }
+
+            // Listen for ReviewUpdated event via WebSockets
+            if (window.Echo) {
+                window.Echo.channel('teacher.{{ $teacher->id }}')
+                    .listen('.ReviewUpdated', (e) => {
+                        fetchUpdates();
+                    });
+            } else {
+                console.warn('Laravel Echo is not defined. Falling back to polling.');
+                setInterval(fetchUpdates, 5000);
+            }
+        })();
+    </script>
 </x-layout>

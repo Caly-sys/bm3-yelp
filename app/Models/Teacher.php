@@ -19,6 +19,7 @@ class Teacher extends Model
         'description',
         'photo',
         'user_id',
+        'points',
     ];
 
     /**

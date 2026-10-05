@@ -59,6 +59,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/reviews/{review}/report', [ReportController::class, 'store'])->name('reviews.report');
 
     // Notifications
+    Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');

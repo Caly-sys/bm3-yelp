@@ -6,7 +6,10 @@ use App\Http\Requests\StoreReviewRequest;
 use App\Http\Requests\UpdateReviewRequest;
 use App\Models\Review;
 use App\Models\Teacher;
+use App\Models\User;
 use App\Notifications\NewReviewNotification;
+use App\Notifications\TeacherLowRatingWarning;
+use App\Notifications\AdminLowRatingWarning;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ReviewController extends Controller
@@ -52,10 +55,46 @@ class ReviewController extends Controller
             ...$request->validated(),
         ]);
 
-        // Send notification to the teacher's linked user account
-        if ($teacher->user_id && $teacher->user) {
-            $teacher->user->notify(new NewReviewNotification($review, auth()->user()));
+        // Calculate point changes
+        $rating = (int) $request->validated()['overall_rating'];
+        $pointsChange = 0;
+        
+        if ($rating === 1) {
+            $pointsChange = -3;
+        } elseif ($rating === 2) {
+            $pointsChange = -2;
+        } elseif ($rating === 3) {
+            $pointsChange = -1;
+        } elseif ($rating === 5) {
+            $pointsChange = 1;
         }
+        
+        // Update teacher's points
+        if ($pointsChange !== 0) {
+            $teacher->points += $pointsChange;
+            $teacher->save();
+        }
+
+        // Send notifications
+        if ($teacher->user_id && $teacher->user) {
+            if ($rating <= 3) {
+                // Low rating warning for teacher
+                $teacher->user->notify(new TeacherLowRatingWarning($review, $teacher, abs($pointsChange)));
+            } else {
+                // Normal notification for 4 or 5 stars
+                $teacher->user->notify(new NewReviewNotification($review, auth()->user()));
+            }
+        }
+        
+        // Warn admins if rating is low
+        if ($rating <= 3) {
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new AdminLowRatingWarning($review, $teacher));
+            }
+        }
+        
+        event(new \App\Events\ReviewUpdated($teacher->id));
 
         return redirect()->route('teachers.show', $teacher)
             ->with('success', 'Your review has been submitted successfully!');
@@ -81,6 +120,8 @@ class ReviewController extends Controller
         $this->authorize('update', $review);
 
         $review->update($request->validated());
+        
+        event(new \App\Events\ReviewUpdated($review->teacher_id));
 
         return redirect()->route('teachers.show', $review->teacher)
             ->with('success', 'Your review has been updated successfully!');
@@ -95,6 +136,8 @@ class ReviewController extends Controller
 
         $teacher = $review->teacher;
         $review->delete();
+        
+        event(new \App\Events\ReviewUpdated($teacher->id));
 
         return redirect()->route('teachers.show', $teacher)
             ->with('success', 'Your review has been deleted.');

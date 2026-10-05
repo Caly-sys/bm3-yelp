@@ -67,7 +67,7 @@ class TeacherController extends Controller
     /**
      * Display a specific teacher's profile with reviews.
      */
-    public function show(Teacher $teacher)
+    public function show(Request $request, Teacher $teacher)
     {
         $averages = $teacher->allAverageRatings();
         $reviewCount = $teacher->publishedReviewCount();
@@ -87,6 +87,15 @@ class TeacherController extends Controller
                 ->where('user_id', auth()->id())
                 ->first();
             $hasReviewed = $userReview !== null;
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('teachers._reviews', compact('reviews', 'reviewCount'))->render(),
+                'points' => $teacher->points,
+                'overall_rating' => number_format($averages['overall'], 1),
+                'reviewCount' => $reviewCount
+            ]);
         }
 
         return view('teachers.show', compact(
