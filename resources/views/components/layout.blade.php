@@ -211,6 +211,45 @@
         document.getElementById('reportModal')?.addEventListener('click', function(e) {
             if (e.target === this) closeReportModal();
         });
+
+        // CSRF Token Auto-Refresh — prevents 419 errors when page is left open for hours
+        (function() {
+            const REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
+
+            function refreshCsrfToken() {
+                fetch('/', { method: 'GET', credentials: 'same-origin' })
+                    .then(response => response.text())
+                    .then(html => {
+                        // Extract the new CSRF token from the response
+                        const match = html.match(/<meta name="csrf-token" content="([^"]+)"/);
+                        if (match && match[1]) {
+                            const newToken = match[1];
+
+                            // Update the meta tag
+                            const metaTag = document.querySelector('meta[name="csrf-token"]');
+                            if (metaTag) {
+                                metaTag.setAttribute('content', newToken);
+                            }
+
+                            // Update all hidden CSRF inputs in forms
+                            document.querySelectorAll('input[name="_token"]').forEach(input => {
+                                input.value = newToken;
+                            });
+                        }
+                    })
+                    .catch(err => console.error('CSRF refresh failed:', err));
+            }
+
+            setInterval(refreshCsrfToken, REFRESH_INTERVAL);
+
+            // Also refresh when the user comes back to the tab after being away
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    refreshCsrfToken();
+                }
+            });
+        })();
     </script>
 </body>
 </html>
+

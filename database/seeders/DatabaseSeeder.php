@@ -91,7 +91,7 @@ class DatabaseSeeder extends Seeder
                     'email' => 'bu_dewi@bm3.sch.id',
                 ],
             ],
-            [
+            [   
                 'teacher' => [
                     'name' => 'Pak Riko Pratama',
                     'subject' => 'Jaringan Komputer',

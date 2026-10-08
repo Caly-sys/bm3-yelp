@@ -75,7 +75,6 @@
 
             function fetchUpdates() {
                 // If there's pagination in the URL, don't poll to avoid jumping back to page 1
-                // or we could poll the current URL including query string.
                 if (isFetching || window.location.search.includes('page=')) return;
                 isFetching = true;
 
@@ -84,12 +83,40 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Update reviews HTML
                     const container = document.getElementById('reviewsContainer');
                     if (container && data.html) {
-                        // Check if html changed before replacing (prevents flashing)
+                        // Preserve any text the user is currently typing in a comment textarea
+                        let savedTextarea = null;
+                        const activeEl = document.activeElement;
+                        if (activeEl && activeEl.tagName === 'TEXTAREA' && container.contains(activeEl)) {
+                            const reviewCard = activeEl.closest('.review-card');
+                            if (reviewCard) {
+                                savedTextarea = {
+                                    reviewId: reviewCard.id, // e.g. "review-123"
+                                    value: activeEl.value,
+                                    selectionStart: activeEl.selectionStart,
+                                    selectionEnd: activeEl.selectionEnd,
+                                };
+                            }
+                        }
+
+                        // Only replace if the HTML actually changed (prevents flashing)
                         if (container.innerHTML.trim() !== data.html.trim()) {
                             container.innerHTML = data.html;
+                        }
+
+                        // Restore the saved textarea content after DOM update
+                        if (savedTextarea && savedTextarea.reviewId) {
+                            const restoredCard = document.getElementById(savedTextarea.reviewId);
+                            if (restoredCard) {
+                                const textarea = restoredCard.querySelector('.teacher-reply-form textarea');
+                                if (textarea) {
+                                    textarea.value = savedTextarea.value;
+                                    textarea.focus();
+                                    textarea.selectionStart = savedTextarea.selectionStart;
+                                    textarea.selectionEnd = savedTextarea.selectionEnd;
+                                }
+                            }
                         }
                     }
 

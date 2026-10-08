@@ -20,69 +20,76 @@
                     </a>
                 @endif
 
-                @if(auth()->user()->isAdmin())
-                    <a href="{{ route('admin.dashboard') }}" class="nav-link nav-admin {{ request()->routeIs('admin.*') ? 'active' : '' }}">Admin</a>
-                @endif
 
-                {{-- Notification Bell --}}
-                @php
-                    $unreadNotifications = auth()->user()->unreadNotifications;
-                    $unreadCount = $unreadNotifications->count();
-                    $recentNotifications = auth()->user()->notifications()->latest()->take(10)->get();
-                @endphp
-                <div class="notification-wrapper" id="notificationWrapper">
-                    <button type="button" class="notification-bell" id="notificationBell" aria-label="Notifications" title="Notifications">
-                        🔔
-                        @if($unreadCount > 0)
-                            <span class="notification-badge" id="notificationBadge">{{ $unreadCount > 99 ? '99+' : $unreadCount }}</span>
-                        @endif
-                    </button>
-                    <div class="notification-dropdown" id="notificationDropdown">
-                        <div class="notification-dropdown-header">
-                            <span class="notification-dropdown-title">Notifications</span>
-                            <div class="notification-header-actions">
-                                @if($unreadCount > 0)
-                                    <form method="POST" action="{{ route('notifications.markAllRead') }}" class="inline-form">
-                                        @csrf
-                                        <button type="submit" class="notification-mark-read">Mark all as read</button>
-                                    </form>
+                {{-- Right-aligned group: Notification Bell + User Info --}}
+                {{-- This is separated with margin-left:auto so it's always at the far right --}}
+                <div class="navbar-right-group">
+                    {{-- Notification Bell --}}
+                    @php
+                        $unreadNotifications = auth()->user()->unreadNotifications;
+                        $unreadCount = $unreadNotifications->count();
+                        $recentNotifications = auth()->user()->notifications()->latest()->take(10)->get();
+                    @endphp
+                    <div class="notification-wrapper" id="notificationWrapper">
+                        <button type="button" class="notification-bell" id="notificationBell" aria-label="Notifications" title="Notifications">
+                            🔔
+                            @if($unreadCount > 0)
+                                <span class="notification-badge" id="notificationBadge">{{ $unreadCount > 99 ? '99+' : $unreadCount }}</span>
+                            @endif
+                        </button>
+                        <div class="notification-dropdown" id="notificationDropdown">
+                            <div class="notification-dropdown-header">
+                                <span class="notification-dropdown-title">Notifications</span>
+                                <div class="notification-header-actions">
+                                    @if($unreadCount > 0)
+                                        <form method="POST" action="{{ route('notifications.markAllRead') }}" class="inline-form">
+                                            @csrf
+                                            <button type="submit" class="notification-mark-read">Mark all as read</button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="notification-dropdown-list">
+                                @if($recentNotifications->isEmpty())
+                                    <div class="notification-empty">No notifications yet</div>
+                                @else
+                                    @foreach($recentNotifications as $notification)
+                                        <form method="POST" action="{{ route('notifications.markAsRead', $notification->id) }}" class="notification-item-form">
+                                            @csrf
+                                            <button type="submit" class="notification-item {{ $notification->read_at ? '' : 'unread' }}">
+                                                <span class="notification-message">{{ $notification->data['message'] ?? 'New notification' }}</span>
+                                                <span class="notification-time">{{ $notification->created_at->diffForHumans() }}</span>
+                                            </button>
+                                        </form>
+                                    @endforeach
                                 @endif
                             </div>
-                        </div>
-                        <div class="notification-dropdown-list">
-                            @if($recentNotifications->isEmpty())
-                                <div class="notification-empty">No notifications yet</div>
-                            @else
-                                @foreach($recentNotifications as $notification)
-                                    <form method="POST" action="{{ route('notifications.markAsRead', $notification->id) }}" class="notification-item-form">
-                                        @csrf
-                                        <button type="submit" class="notification-item {{ $notification->read_at ? '' : 'unread' }}">
-                                            <span class="notification-message">{{ $notification->data['message'] ?? 'New notification' }}</span>
-                                            <span class="notification-time">{{ $notification->created_at->diffForHumans() }}</span>
-                                        </button>
-                                    </form>
-                                @endforeach
+                            @if($recentNotifications->isNotEmpty())
+                                <div class="notification-dropdown-footer">
+                                    <a href="{{ route('notifications.index') }}" class="notification-view-all">View all notifications</a>
+                                </div>
                             @endif
                         </div>
-                        @if($recentNotifications->isNotEmpty())
-                            <div class="notification-dropdown-footer">
-                                <a href="{{ route('notifications.index') }}" class="notification-view-all">View all notifications</a>
-                            </div>
-                        @endif
+                    </div>
+
+                    @if(auth()->user()->isAdmin())
+                        <a href="{{ route('admin.dashboard') }}" class="nav-link nav-admin {{ request()->routeIs('admin.*') ? 'active' : '' }}">Admin</a>
+                    @endif
+
+                    <div class="nav-user">
+                        <span class="nav-username">{{ '@' . auth()->user()->username }}</span>
+                        <span class="nav-role-badge nav-role-{{ auth()->user()->role }}">{{ ucfirst(auth()->user()->role) }}</span>
+                        <form method="POST" action="{{ route('logout') }}" class="nav-logout-form">
+                            @csrf
+                            <button type="submit" class="btn btn-ghost btn-sm">Logout</button>
+                        </form>
                     </div>
                 </div>
-
-                <div class="nav-user">
-                    <span class="nav-username">{{ '@' . auth()->user()->username }}</span>
-                    <span class="nav-role-badge nav-role-{{ auth()->user()->role }}">{{ ucfirst(auth()->user()->role) }}</span>
-                    <form method="POST" action="{{ route('logout') }}" class="nav-logout-form">
-                        @csrf
-                        <button type="submit" class="btn btn-ghost btn-sm">Logout</button>
-                    </form>
-                </div>
             @else
-                <a href="{{ route('login') }}" class="btn btn-ghost btn-sm">Login</a>
-                <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Sign Up</a>
+                <div class="navbar-right-group">
+                    <a href="{{ route('login') }}" class="btn btn-ghost btn-sm">Login</a>
+                    <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Sign Up</a>
+                </div>
             @endauth
 
             <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme">
@@ -98,6 +105,7 @@
         </button>
     </div>
 </nav>
+
 
 <script>
     document.getElementById('navToggle')?.addEventListener('click', function() {
